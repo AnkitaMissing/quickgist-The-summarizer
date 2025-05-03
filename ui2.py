@@ -11,8 +11,6 @@ import tempfile
 import urllib.request
 from faster_whisper import WhisperModel
 import base64
-import imageio_ffmpeg
-import os
 import os
 import urllib.request
 import stat
@@ -78,16 +76,7 @@ def typing_effect(text, speed=0.05):
         sleep(speed)
 
 # ========== Download YouTube MP3 ==========
-import os
-import yt_dlp
-# Tell yt-dlp where ffmpeg is
-import imageio_ffmpeg
 
-
-# Set ffmpeg and ffprobe path for yt_dlp
-ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
-ffmpeg_dir = os.path.dirname(ffmpeg_path)
-os.environ["PATH"] += os.pathsep + ffmpeg_dir
 def download_youtube_mp3(url: str, output_dir: str = "downloads"):
     ffmpeg_dir = setup_ffmpeg_ffprobe()
 
