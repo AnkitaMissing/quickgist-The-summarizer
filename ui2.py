@@ -15,14 +15,14 @@ import imageio_ffmpeg
 import os
 
 # Tell yt-dlp where ffmpeg is
-os.environ["PATH"] += os.pathsep + os.path.dirname(imageio_ffmpeg.get_ffmpeg_exe())
 import imageio_ffmpeg
 import os
 
 # Set ffmpeg and ffprobe path for yt_dlp
 ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
-ffprobe_path = ffmpeg_path.replace("ffmpeg", "ffprobe")
-os.environ["PATH"] += os.pathsep + os.path.dirname(ffmpeg_path)
+ffmpeg_dir = os.path.dirname(ffmpeg_path)
+os.environ["PATH"] += os.pathsep + ffmpeg_dir
+
 
 
 # ========== Set Background Image and Text Color ==========
@@ -69,6 +69,7 @@ def download_youtube_mp3(url: str, output_dir: str = "downloads"):
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
+        'ffmpeg_location': ffmpeg_dir,  # ✅ add this line
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -77,16 +78,13 @@ def download_youtube_mp3(url: str, output_dir: str = "downloads"):
         'quiet': False
     }
 
-    # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
-    
     downloaded_file = {"filename": None}
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(url, download=True)
         video_title = info_dict.get("title", "summary")
 
-    # Look for expected file
     expected_filename = os.path.join(output_dir, f"{video_title}.mp3")
     if os.path.exists(expected_filename):
         downloaded_file["filename"] = expected_filename
@@ -100,6 +98,7 @@ def download_youtube_mp3(url: str, output_dir: str = "downloads"):
         raise FileNotFoundError("MP3 file was not found after download.")
 
     return video_title, downloaded_file["filename"]
+
 
 # Example usage:
 # video_title, filepath = download_youtube_mp3("https://www.youtube.com/watch?v=VIDEO_ID")
