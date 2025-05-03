@@ -13,6 +13,33 @@ from faster_whisper import WhisperModel
 import base64
 import imageio_ffmpeg
 import os
+import os
+import urllib.request
+import stat
+
+# Function to download ffmpeg and ffprobe statically
+def setup_ffmpeg_ffprobe():
+    bin_dir = "/tmp/ffmpeg-bin"
+    ffmpeg_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz"
+
+    if not os.path.exists(bin_dir):
+        os.makedirs(bin_dir, exist_ok=True)
+
+        # Download and extract ffmpeg release
+        archive_path = os.path.join(bin_dir, "ffmpeg.tar.xz")
+        urllib.request.urlretrieve(ffmpeg_url, archive_path)
+
+        os.system(f"tar -xf {archive_path} -C {bin_dir} --strip-components=1")
+
+        # Add execute permissions
+        for fname in ["ffmpeg", "ffprobe"]:
+            fpath = os.path.join(bin_dir, fname)
+            os.chmod(fpath, os.stat(fpath).st_mode | stat.S_IEXEC)
+
+    # Add to PATH
+    os.environ["PATH"] = bin_dir + os.pathsep + os.environ.get("PATH", "")
+
+    return bin_dir  # to pass as ffmpeg_location
 
 # ========== Set Background Image and Text Color ==========
 def set_background(image_file):
@@ -62,10 +89,12 @@ ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
 ffmpeg_dir = os.path.dirname(ffmpeg_path)
 os.environ["PATH"] += os.pathsep + ffmpeg_dir
 def download_youtube_mp3(url: str, output_dir: str = "downloads"):
+    ffmpeg_dir = setup_ffmpeg_ffprobe()
+
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
-        'ffmpeg_location': ffmpeg_dir,  # ✅ add this line
+        'ffmpeg_location': ffmpeg_dir,
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -90,11 +119,10 @@ def download_youtube_mp3(url: str, output_dir: str = "downloads"):
                 downloaded_file["filename"] = os.path.join(output_dir, file)
                 break
 
-    if not downloaded_file["filename"] or not os.path.exists(downloaded_file["filename"]):
-        raise FileNotFoundError("MP3 file was not found after download.")
+    if not downloaded_file["filename"]:
+        raise FileNotFoundError("MP3 file not found after download.")
 
     return video_title, downloaded_file["filename"]
-
 
 # Example usage:
 # video_title, filepath = download_youtube_mp3("https://www.youtube.com/watch?v=VIDEO_ID")
