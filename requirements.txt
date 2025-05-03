@@ -1,11 +1,11 @@
 streamlit
 yt-dlp
 pydub
-transformers
+transformers==4.40.1
+sentencepiece==0.1.99
+torch==2.1.0
+torchaudio==2.1.0
 fpdf
 openai
 faster-whisper
-sentencepiece
-torch
-torchaudio
-
+imageio-ffmpeg
