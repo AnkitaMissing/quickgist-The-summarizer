@@ -11,6 +11,12 @@ import tempfile
 import urllib.request
 from faster_whisper import WhisperModel
 import base64
+import imageio_ffmpeg
+import os
+
+# Tell yt-dlp where ffmpeg is
+os.environ["PATH"] += os.pathsep + os.path.dirname(imageio_ffmpeg.get_ffmpeg_exe())
+
 
 # ========== Set Background Image and Text Color ==========
 def set_background(image_file):
