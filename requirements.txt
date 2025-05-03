@@ -8,3 +8,4 @@ faster-whisper
 sentencepiece
 torch
 torchaudio
+imageio-ffmpeg
