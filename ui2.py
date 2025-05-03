@@ -16,6 +16,13 @@ import os
 
 # Tell yt-dlp where ffmpeg is
 os.environ["PATH"] += os.pathsep + os.path.dirname(imageio_ffmpeg.get_ffmpeg_exe())
+import imageio_ffmpeg
+import os
+
+# Set ffmpeg and ffprobe path for yt_dlp
+ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+ffprobe_path = ffmpeg_path.replace("ffmpeg", "ffprobe")
+os.environ["PATH"] += os.pathsep + os.path.dirname(ffmpeg_path)
 
 
 # ========== Set Background Image and Text Color ==========
