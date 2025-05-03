@@ -1,0 +1,10 @@
+streamlit
+yt-dlp
+pydub
+transformers
+fpdf
+openai
+faster-whisper
+sentencepiece
+torch
+torchaudio
