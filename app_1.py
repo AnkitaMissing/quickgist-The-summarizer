@@ -1,7 +1,6 @@
 import streamlit as st
 from time import sleep
 import yt_dlp
-from pydub import AudioSegment
 from transformers import PegasusTokenizer, PegasusForConditionalGeneration, T5Tokenizer, T5ForConditionalGeneration
 from fpdf import FPDF
 import openai
