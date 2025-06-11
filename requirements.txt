@@ -4,7 +4,7 @@ pydub==0.25.1
 transformers==4.40.1
 sentencepiece==0.1.99
 torch==2.7.1
-torchaudio==2.1.0
+torchaudio==2.7.1
 fpdf==1.7.2
 openai==1.23.2
 imageio-ffmpeg==0.4.9
