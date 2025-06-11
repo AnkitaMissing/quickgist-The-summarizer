@@ -213,7 +213,7 @@ def main():
     whisper_model = st.sidebar.selectbox("Choose Whisper Model", ["base", "large-v3"])
     summary_format = st.sidebar.selectbox("Summary Format", ["paragraph", "point_wise", "both"])
     openai_key = st.sidebar.text_input("OpenAI API Key", type="password")
-    summarizer_model = st.sidebar.selectbox("Summarizer Model", ["Pegasus", "T5", "OpenAI GPT"])
+    summarizer_model = st.sidebar.selectbox("Summarizer Model", ["Pegasus", "OpenAI GPT"])
 
     if st.sidebar.button("Start Summarization"):
         tmpdir = r"j:\final year project\downloads"
@@ -249,8 +249,6 @@ def main():
                     return
                 openai.api_key = openai_key
                 summary = summarize_with_gpt(transcription, format_type=summary_format)
-            elif summarizer_model == "T5":
-                summary = summarize_with_t5(transcription, format_type=summary_format)
             else:
                 summary = summarize_with_pegasus(transcription, format_type=summary_format)
                 
