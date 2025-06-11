@@ -7,4 +7,4 @@ torchaudio==2.7.1
 fpdf==1.7.2
 openai==1.23.2
 imageio-ffmpeg==0.4.9
-whisper==1.1.10
+faster-whisper==0.10.0
