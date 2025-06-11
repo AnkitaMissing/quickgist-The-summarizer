@@ -2,7 +2,7 @@ streamlit
 yt-dlp
 pydub
 transformers
-sentencepiece
+sentencepiece==0.1.96
 torch
 torchaudio
 fpdf
