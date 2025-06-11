@@ -92,9 +92,14 @@ def download_youtube_mp3(url, output_dir=r"D:\final year project\downloads"):
         return None, None
 
 # ========== Convert MP3 to WAV ==========
+import subprocess
+
 def convert_mp3_to_wav(mp3_file, wav_file):
-    audio = AudioSegment.from_mp3(mp3_file)
-    audio.export(wav_file, format="wav")
+    try:
+        subprocess.run(["ffmpeg", "-i", mp3_file, wav_file], check=True)
+    except subprocess.CalledProcessError as e:
+        st.error("Error during MP3 to WAV conversion: " + str(e))
+
 
 # ========== Transcribe Audio with Whisper ==========
 def transcribe_audio_with_whisper(wav_file, model_name_or_path="base", language="en"):
