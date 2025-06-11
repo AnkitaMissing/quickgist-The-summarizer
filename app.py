@@ -125,7 +125,22 @@ def summarize_with_pegasus(text, format_type="paragraph"):
     elif format_type == "both":
         summary = format_summary_paragraph_with_bullets(summary)
     return summary
-
+def summarize_with_t5(text, format_type="paragraph"):
+    model_name = "t5-base"
+    tokenizer = T5Tokenizer.from_pretrained(model_name)
+    model = T5ForConditionalGeneration.from_pretrained(model_name)
+    processed_text = preprocess_transcription(text)
+    input_text = "summarize: " + processed_text
+    inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
+    summary_ids = model.generate(inputs, max_length=150, min_length=40, length_penalty=2.0, num_beams=4, early_stopping=True)
+    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True).strip()
+    if not summary.endswith(('.', '!', '?')):
+        summary += "."
+    if format_type == "point_wise":
+        summary = convert_to_bullet_points(summary)
+    elif format_type == "both":
+        summary = format_summary_paragraph_with_bullets(summary)
+    return summary
 
 
 def summarize_with_gpt(text, format_type="paragraph"):
