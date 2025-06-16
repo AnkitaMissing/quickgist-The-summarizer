@@ -1,6 +1,7 @@
 import streamlit as st
 from time import sleep
 import yt_dlp
+from pydub import AudioSegment
 from transformers import PegasusTokenizer, PegasusForConditionalGeneration, T5Tokenizer, T5ForConditionalGeneration
 from fpdf import FPDF
 import openai
@@ -91,14 +92,9 @@ def download_youtube_mp3(url, output_dir=r"D:\final year project\downloads"):
         return None, None
 
 # ========== Convert MP3 to WAV ==========
-import subprocess
-
 def convert_mp3_to_wav(mp3_file, wav_file):
-    try:
-        subprocess.run(["ffmpeg", "-i", mp3_file, wav_file], check=True)
-    except subprocess.CalledProcessError as e:
-        st.error("Error during MP3 to WAV conversion: " + str(e))
-
+    audio = AudioSegment.from_mp3(mp3_file)
+    audio.export(wav_file, format="wav")
 
 # ========== Transcribe Audio with Whisper ==========
 def transcribe_audio_with_whisper(wav_file, model_name_or_path="base", language="en"):
@@ -132,6 +128,22 @@ def summarize_with_pegasus(text, format_type="paragraph"):
         summary = format_summary_paragraph_with_bullets(summary)
     return summary
 
+def summarize_with_t5(text, format_type="paragraph"):
+    model_name = "t5-base"
+    tokenizer = T5Tokenizer.from_pretrained(model_name)
+    model = T5ForConditionalGeneration.from_pretrained(model_name)
+    processed_text = preprocess_transcription(text)
+    input_text = "summarize: " + processed_text
+    inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
+    summary_ids = model.generate(inputs, max_length=150, min_length=40, length_penalty=2.0, num_beams=4, early_stopping=True)
+    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True).strip()
+    if not summary.endswith(('.', '!', '?')):
+        summary += "."
+    if format_type == "point_wise":
+        summary = convert_to_bullet_points(summary)
+    elif format_type == "both":
+        summary = format_summary_paragraph_with_bullets(summary)
+    return summary
 
 def summarize_with_gpt(text, format_type="paragraph"):
     prompt = f"Summarize the following text into a {format_type.replace('_', ' ')} summary:\n\n{text}"
@@ -213,7 +225,7 @@ def main():
     whisper_model = st.sidebar.selectbox("Choose Whisper Model", ["base", "large-v3"])
     summary_format = st.sidebar.selectbox("Summary Format", ["paragraph", "point_wise", "both"])
     openai_key = st.sidebar.text_input("OpenAI API Key", type="password")
-    summarizer_model = st.sidebar.selectbox("Summarizer Model", ["Pegasus", "OpenAI GPT"])
+    summarizer_model = st.sidebar.selectbox("Summarizer Model", ["Pegasus", "T5", "OpenAI GPT"])
 
     if st.sidebar.button("Start Summarization"):
         tmpdir = r"j:\final year project\downloads"
@@ -249,6 +261,8 @@ def main():
                     return
                 openai.api_key = openai_key
                 summary = summarize_with_gpt(transcription, format_type=summary_format)
+            elif summarizer_model == "T5":
+                summary = summarize_with_t5(transcription, format_type=summary_format)
             else:
                 summary = summarize_with_pegasus(transcription, format_type=summary_format)
                 
